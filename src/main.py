@@ -1,57 +1,55 @@
 from spjrud import SJRUD
 import os
-from time import sleep
+import gui
 
 
-def show_table(s: SJRUD):
-    os.system('clear')
-    print("Show a table\n"
-          "-----------------\n")
-    table_name = input("Name of the table: ")
-    s.show_table(s, table_name)
+def show_table(db: SJRUD):
+    table_name = gui.menu_show_table()
+    if db.table_exist(table_name):
+        gui.print_table(table_name, db.get_table(table_name))
+    else:
+        gui.alert_box("The table does not exist !")
 
-def execute(s: SJRUD):
+
+def create_spjrud_expression(db):
+    (name, expression) = gui.menu_create_expression()
+    gui.alert_box(db.create_expression(name, expression))
+
+
+def execute(db: SJRUD):
     run = True
     while run:
-        os.system('clear')
-        print("SPJRUD Translator\n"
-              "-----------------\n"
-              "1. List of Table\n"
-              "2. Show a table\n"
-              "0. Back to Home\n")
-        choice = input("Choice: ")
+        choice = gui.main_menu()
         if choice == '1':
-            s.show_tables(s)
-            input("\nPress any key to continue..")
+            gui.print_list_table(db.get_tables())
         elif choice == '2':
-            show_table(s)
+            show_table(db)
+        elif choice == '3':
+            create_spjrud_expression(db)
+        elif choice == '4':
+            gui.print_list_expression(db.get_expressions())
+        elif choice == '5':
+            pass #TODO
         elif choice == '0':
             run = False
 
 
 if __name__ == "__main__":
     run = True
-    spjrud: SJRUD = SJRUD
+    spjrud: SJRUD = SJRUD()
     while run:
         os.system('clear')
-        print("SPJRUD Translator\n"
-              "-----------------\n"
-              "- Enter q for exit\n"
-              "- Do not enter anything to use the default database\n")
-        db = input("Path of the database: ")
+        db = gui.first_menu()
         if db == 'q':
             run = False
         elif db == '':
-            spjrud.config(spjrud, "../resources/bd.db")
+            spjrud.config("../resources/bd.db")
             execute(spjrud)
         else:
             try:
                 open(db)
-                spjrud.config(spjrud, db)
+                spjrud.config(db)
                 execute(spjrud)
             except Exception as e:
                 del e
-                os.system('clear')
-                print("! Path does not exist !")
-                sleep(1)
-
+                gui.alert_box("! Path or file does not exist !")

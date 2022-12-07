@@ -7,6 +7,8 @@ class SJRUD:
     connection: sql.Connection
     cursor: sql.Cursor
 
+    expressions = {}
+
     def config(self, database_file: str):
         self.connection = sql.connect(database_file)
         self.cursor = self.connection.cursor()
@@ -31,25 +33,40 @@ class SJRUD:
     def diff(self, first_table, second_table):
         pass
 
-    def show_tables(self):
-        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        print("List of tables\n"
-              "--------------\n")
-        for table in self.cursor.fetchall():
-            print(table[0])
+    def create_expression(self, name: str, expression: str):
+        if name not in self.expressions.keys() and name not in self.get_tables():
+            self.expressions[name] = expression
+            return "Relation successfully added !"
+        else:
+            return "An table/relation already has this name !"
+        # TODO check if the expression is possible
 
-    def show_table(self, table_name: str):
+    def get_expressions(self):
+        return self.expressions
+
+    def get_tables(self):
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = []
+        for table in self.cursor.fetchall():
+            tables.append(table[0])
+        return tables
+
+    def get_table(self, table_name: str):
+        self.cursor.execute("SELECT * FROM " + table_name + ";")
+        data = self.cursor.fetchall()
+        table = []
+        col = []
+        for elt in self.cursor.description:
+            col.append(elt[0])
+        table.append(col)
+        for elt in data:
+            table.append(elt)
+        return table
+
+    def table_exist(self, table_name):
         try:
-            data = self.cursor.execute("SELECT * FROM "+table_name+";")
-            table = self.cursor.fetchall()
-            #TODO
-            for elt in table:
-                print(elt)
-            input("\nPress any key to continue..")
-        except Exception as e:
-            os.system('clear')
-            print(e)
-            print("! No table has this name !")
-            input("\nPress any key to continue..")
-            sleep(1)
+            self.cursor.execute("SELECT * FROM " + table_name + ";")
+            return True
+        except Exception:
+            return False
 
