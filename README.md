@@ -14,9 +14,9 @@
 ### Features
 
 - [x] List of Tables
-- [ ] List of Relations
+- [x] List of Relations
 - [x] Show a table
-- [ ] Show a relation
+- [x] Show a relation
 - [x] Create a SPJRUD expression
 - [x] List of SPJRUD expression
 - [ ] Validation of SPJRUD Expression
