@@ -13,7 +13,7 @@ def first_menu():
 def main_menu():
     clear()
     title("SPJRUD Translator")
-    print("1. List of Tables/Relations/Expressions\n"
+    print("1. List of Tables/Relations\n"
           "2. Show a table/relation\n"
           "3. Create a SPJRUD expression\n"
           "4. List of SPJRUD expression\n"

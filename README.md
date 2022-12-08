@@ -4,12 +4,20 @@
     <img src="./resources/umons-fs.png" width="150" alt="UMONS Logo">
 </p>
 
-# Projet de Base de Données
+# SPJRUD Translator
 
-### Auteurs
+### Autors
 
 - Estebane Vanduynslager
 - Alan Altruy
 
-### Fonctionnalités
- TODO
+### Features
+
+- [x] List of Tables
+- [ ] List of Relations
+- [x] Show a table
+- [ ] Show a relation
+- [x] Create a SPJRUD expression
+- [x] List of SPJRUD expression
+- [ ] Validation of SPJRUD Expression
+- [ ] Execute a SPJRUD expression
