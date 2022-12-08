@@ -1,9 +1,7 @@
 import sqlite3 as sql
-import os
-from time import sleep
 
 
-class SJRUD:
+class SPJRUD:
     connection: sql.Connection
     cursor: sql.Cursor
 
@@ -67,6 +65,5 @@ class SJRUD:
         try:
             self.cursor.execute("SELECT * FROM " + table_name + ";")
             return True
-        except Exception:
+        except:
             return False
-

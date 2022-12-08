@@ -40,7 +40,7 @@ def print_list_table(tables: list):
     clear()
     title("List of tables")
     print_lst(tables)
-    #TODO list of relations
+    # TODO list of relations
     wait()
 
 
@@ -61,7 +61,7 @@ def print_table(table_name: str, table: list):
     buffer = ""
     print("|" + (len(table[0]) * 23 - 1) * "-" + "|")
     for elt in table[0]:
-        if len(str(elt)) > 12:
+        if len(str(elt)) > 18:
             elt = elt[0:18] + ".."
         buffer += "| {:^20} ".format(elt)
     print(buffer + "|")
@@ -87,7 +87,7 @@ def print_lst(lst: list):
 
 
 def title(txt: str):
-    print(txt+"\n"+"-"*len(txt)+"\n")
+    print(txt + "\n" + "-" * len(txt) + "\n")
 
 
 def alert_box(txt: str):
