@@ -17,7 +17,6 @@ def main_menu():
           "2. Show a table/relation\n"
           "3. Create a SPJRUD expression\n"
           "4. List of SPJRUD expression\n"
-          "5. Execute a SPJRUD expression\n"
           "0. Back to Home\n")
     return input("Choice: ")
 
@@ -36,11 +35,11 @@ def menu_create_expression():
     return name, expression
 
 
-def print_list_table(tables: list):
+def print_list_table(tables: list, relation: list):
     clear()
-    title("List of tables")
+    title("List of tables/relation")
     print_lst(tables)
-    # TODO list of relations
+    print_lst(relation)
     wait()
 
 
@@ -49,7 +48,7 @@ def print_list_expression(expressions: dict):
         clear()
         title("List of expressions")
         for key in expressions.keys():
-            print(" - " + key + " = " + expressions[key])
+            print(" - " + key + " = " + expressions[key][0])
         wait()
     else:
         alert_box("There are no saved expressions !")
@@ -59,24 +58,26 @@ def print_table(table_name: str, table: list):
     clear()
     title("Table " + table_name + ":")
     buffer = ""
-    print("|" + (len(table[0]) * 23 - 1) * "-" + "|")
+    line = "|" + (len(table[0]) * 23 - 1) * "-" + "|"
+    print(line)
     for elt in table[0]:
         if len(str(elt)) > 18:
             elt = elt[0:18] + ".."
         buffer += "| {:^20} ".format(elt)
     print(buffer + "|")
-    print("|" + (len(table[0]) * 23 - 1) * "-" + "|")
+    print(line)
     buffer = ""
 
     table = table[1:]
-    for line in table:
-        for elt in line:
+    for row in table:
+        for elt in row:
             if len(str(elt)) > 18:
                 elt = elt[0:18] + ".."
             buffer += "| {:^20} ".format(str(elt))
         buffer += "|\n"
-    print(buffer[:-1])
-    print("|" + (len(table[0]) * 23 - 1) * "-" + "|")
+    if len(buffer) > 0:
+        print(buffer[:-1])
+    print(line)
 
     wait()
 
@@ -90,12 +91,19 @@ def title(txt: str):
     print(txt + "\n" + "-" * len(txt) + "\n")
 
 
-def alert_box(txt: str):
-    clear()
-    print("|" + "-" * (len(txt)) + "|")
-    print("|" + txt + "|")
-    print("|" + "-" * (len(txt)) + "|")
-    sleep(1.5)
+def alert_box(txt):
+    if type(txt) == str:
+        clear()
+        print("|" + "-" * (len(txt)) + "|")
+        print("|" + txt + "|")
+        print("|" + "-" * (len(txt)) + "|")
+        sleep(1.5)
+    elif len(txt) > 0:
+        clear()
+        title("List of errors")
+        for error in txt:
+            print(" - "+error)
+        wait()
 
 
 def clear():
