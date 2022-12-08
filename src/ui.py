@@ -100,7 +100,7 @@ def alert_box(txt):
         sleep(1.5)
     elif len(txt) > 0:
         clear()
-        title("List of errors")
+        title("Errors")
         for error in txt:
             print(" - "+error)
         wait()

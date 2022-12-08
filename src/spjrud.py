@@ -13,17 +13,29 @@ class SPJRUD:
         self.cursor = self.connection.cursor()
         self.cursor.execute("SELECT name FROM sqlite_master;")
 
-    def select(self, first_arg, operation, second_arg, table: str):
+    @staticmethod
+    def select(first_arg, operation, second_arg, table: str):
         return "select * from (" + table + ") where " + first_arg + " " + operation + " " + second_arg
 
-    def proj(self, columns: list, table):
-        pass
+    @staticmethod
+    def proj(columns: list, table: str):
+        cols = ""
+        for col in columns:
+            cols += col + ", "
+        return "select " + cols[:-2] + " from (" + table + ")"
 
     def join(self, first_table, second_table):
         pass
 
-    def rename(self, name_before: str, name_after: str, table):
-        pass
+    @staticmethod
+    def rename(name_before: str, name_after: str, table, columns: list):
+        cols = ""
+        for i in range(len(columns)):
+            cols += columns[i]
+            if columns[i] == name_before:
+                cols += " as " + name_after
+            cols += ", "
+        return "select " + cols[:-2] + " from (" + table + ")"
 
     def union(self, first_table, second_table):
         pass
@@ -33,11 +45,12 @@ class SPJRUD:
 
     def create_expression(self, name: str, expression: str):
         if name not in self.expressions.keys() and name not in self.get_tables():
-            check, sql = self.check_expression(expression)
-            if check is None:
-                self.expressions[name] = [expression, sql]
+            error, sql_request = self.check_expression(expression)
+
+            if error is None:
+                self.expressions[name] = [expression, sql_request]
                 return "Relation successfully added !"
-            return check
+            return error
         else:
             return "An table/relation already has this name !"
 
@@ -48,9 +61,7 @@ class SPJRUD:
         args = ""
         pointer = "operator"
         if expression.count('(') != expression.count(')'):
-            return ["Syntax error",
-                    "One of the parentheses is missing in the (sub-)expression",
-                    "   " + expression], None
+            return error_syntax(expression, "parentheses"), None
 
         for character in expression:
             if pointer == "operator":
@@ -61,14 +72,21 @@ class SPJRUD:
             else:
                 args += character
         if operator not in operators.keys():
-            return ["'" + operator + "' in the (sub-)expression:",
-                    "   " + expression,
-                    "is not an operator",
-                    "Here is the list of operators:",
-                    "   " + str(operators.keys())[10:-1]], None
+            return error_operator(operator, expression, list(operators.keys())), None
         return operators[operator](args[:-1])
 
+    def check_relation(self, relation: str, exp: str):
+        if relation.find("(") > 0:
+            return self.check_expression(relation)
+        elif self.table_exist(relation):
+            return None, "select * from " + relation
+        elif self.relation_exist(relation):
+            return None, self.expressions[relation][1]
+        else:
+            return error_rel_not_exist(relation, exp), None
+
     def check_select(self, arg: str):
+        expression = "sel(" + arg + ")"
         operators = ["<", ">", "="]
         args = ["", "", "", ""]
         pointer = 0
@@ -77,49 +95,89 @@ class SPJRUD:
                 pointer += 1
             else:
                 args[pointer] = args[pointer] + char
+
         [first_arg, operator, second_arg, relation] = clean_lst_str(args)
-        if relation.find("(") > 0:
-            (error, sql) = self.check_expression(relation)
-            if error is not None:
-                return error, None
-        elif self.table_exist(relation):
-            sql = "select * from " + relation
-        elif self.relation_exist(relation):
-            sql = self.expressions[relation][1]
-        else:
-            return ["The relation '" + relation + "' in the (sub-)expression",
-                    "   sel(" + arg + ")",
-                    "does not exist"], None
-        cols = self.get_column(sql)
+
+        if operator not in operators:
+            return error_operator(operator, expression, operators), None
+
+        (error, sql_request) = self.check_relation(relation, expression)
+        if error is not None:
+            return error, None
+
+        cols = self.get_column(sql_request)
+
         if is_constant(first_arg):
-            return ["The first argument must be a column not a constant",
-                    "Here is the list of column for the (sub-)expression",
-                    "   " + relation + ":",
-                    "   " + str(cols)], None
+            return error_column(relation, cols), None
 
         if first_arg not in cols:
-            return ["The column '" + first_arg + "' is not  present in the (sub-)expression",
-                    "   " + relation,
-                    "which contains the columns:",
-                    "   " + str(cols)], None
+            return error_column(relation, cols, col=first_arg), None
+
         if not is_constant(second_arg) and second_arg not in cols:
-            return ["The column '" + second_arg + "' is not  present in the (sub-)expression",
-                    "   " + relation,
-                    "which contains the columns:",
-                    "   " + str(cols)], None
-        if operator not in operators:
-            return "The operator '" + operator + "' does not exist", None
+            return error_column(relation, cols, col=second_arg), None
 
-        return None, self.select(first_arg, operator, second_arg, sql)
+        return None, self.select(first_arg, operator, second_arg, sql_request)
 
-    def check_project(self, args: str):
-        pass
+    def check_project(self, arg: str):
+        expression = "proj(" + arg + ")"
+        arg = clean_str(arg)
+        if not arg.startswith("["):
+            return error_syntax(expression, "brackets"), None
+        arg = arg[1:]
+        pointer = "cols"
+        cols_to_project = []
+        buffer = ""
+        for char in arg:
+            if char == "," and pointer == "cols":
+                cols_to_project.append(buffer)
+                buffer = ""
+            elif char == "]":
+                cols_to_project.append(buffer)
+                pointer = "relation"
+                buffer = ""
+            elif not (buffer == "" and char == ","):
+                buffer += char
+        if pointer == "cols":
+            return error_syntax(expression, "brackets"), None
+        cols_to_project = clean_lst_str(cols_to_project)
+        relation = clean_str(buffer)
+        (error, sql_request) = self.check_relation(relation, expression)
+        if error is not None:
+            return error, None
+
+        cols = self.get_column(sql_request)
+        for col in cols_to_project:
+            if col not in cols:
+                return error_column(relation, cols, col=col), None
+
+        return None, self.proj(cols_to_project, sql_request)
 
     def check_join(self, args: str):
         pass
 
-    def check_rename(self, args: str):
-        pass
+    def check_rename(self, arg: str):
+        expression = "ren(" + arg + ")"
+        arg = clean_str(arg)
+        args = []
+        buffer = ""
+        for char in arg:
+            if char == "," and len(args) < 3:
+                args.append(buffer)
+                buffer = ""
+            else:
+                buffer += char
+        relation = clean_str(buffer)
+        args = clean_lst_str(args)
+        (error, sql_request) = self.check_relation(relation, expression)
+        if error is not None:
+            return error, None
+
+        cols = self.get_column(sql_request)
+        if args[0] not in cols:
+            return error_column(relation, cols, col=args[0]), None
+        if not is_constant(args[1]):
+            return error_not_constant(expression, args[1]), None
+        return None, self.rename(args[0], args[1], relation, cols)
 
     def check_union(self, args: str):
         pass
