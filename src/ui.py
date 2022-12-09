@@ -102,12 +102,15 @@ def alert_box(txt):
         clear()
         title("Errors")
         for error in txt:
-            print(" - "+error)
+            print(" - " + error)
         wait()
 
 
 def clear():
-    os.system("clear")
+    txt = 'clear'
+    if os.name == 'nt':
+        txt = 'cls'
+    os.system(txt)
 
 
 def wait():

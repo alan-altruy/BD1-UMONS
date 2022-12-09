@@ -1,5 +1,4 @@
 from spjrud import SPJRUD
-import os
 import ui
 
 
@@ -38,7 +37,6 @@ if __name__ == "__main__":
     run = True
     spjrud: SPJRUD = SPJRUD()
     while run:
-        os.system('clear')
         file_name = ui.first_menu()
         if file_name == 'q':
             run = False

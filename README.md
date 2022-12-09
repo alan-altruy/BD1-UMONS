@@ -11,6 +11,15 @@
 - Estebane Vanduynslager
 - Alan Altruy
 
+### Guide
+<ol>
+    <b><u><li>First Menu</li></u></b>
+    <b><u><li>Main Menu</li></u></b>
+    <b><u><li>Show a table/relation</li></u></b>
+    <b><u><li>Create a SPJRUD expression</li></u></b>
+    <b><u><li>Save a SPJRUD expression to database</li></u></b>
+</ol>
+
 ### Features
 
 - [x] List of Tables
@@ -19,5 +28,20 @@
 - [x] Show a relation
 - [x] Create a SPJRUD expression
 - [x] List of SPJRUD expression
-- [ ] Validation of SPJRUD Expression
-- [ ] Execute a SPJRUD expression
+- [x] Execute a SPJRUD expression
+- [ ] Add a table from a SPJRUD expression
+<br>Validation of SPJRUD Expression
+  - [x] Select
+  - [x] Project
+  - [ ] Join
+  - [x] Rename
+  - [ ] Union
+  - [ ] Difference
+
+
+
+### Remarks
+<ul>
+    We have implemented the program using the "code with me" plugin of Intellij,
+    this is why all the commits on GitHub are in the name of alan-altruy.
+</ul>
