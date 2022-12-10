@@ -53,3 +53,5 @@ def error_operator(operator: str, exp: str, operators: list):
             "is not an operator",
             "Here is the list of operators:",
             "   " + str(operators)]
+
+

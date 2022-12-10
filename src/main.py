@@ -31,6 +31,8 @@ def execute(db: SPJRUD):
             ui.print_list_expression(db.get_expressions())
         elif choice == '0':
             is_running = False
+        elif db.is_sql_query(choice):
+            ui.print_table("[Your query]", db.get_table_from_query(choice))
 
 
 if __name__ == "__main__":

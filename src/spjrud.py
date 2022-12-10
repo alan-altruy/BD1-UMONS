@@ -177,7 +177,7 @@ class SPJRUD:
             return error_column(relation, cols, col=args[0]), None
         if not is_constant(args[1]):
             return error_not_constant(expression, args[1]), None
-        return None, self.rename(args[0], args[1], relation, cols)
+        return None, self.rename(args[0], args[1], sql_request, cols)
 
     def check_union(self, args: str):
         pass
@@ -185,8 +185,8 @@ class SPJRUD:
     def check_difference(self, args: str):
         pass
 
-    def get_column(self, relation: str):
-        self.cursor.execute(relation)
+    def get_column(self, sql_request: str):
+        self.cursor.execute(sql_request)
         col = []
         for elt in self.cursor.description:
             col.append(elt[0])
@@ -208,6 +208,22 @@ class SPJRUD:
     def get_table(self, table_name: str):
         self.cursor.execute("SELECT * FROM " + table_name)
         return self.get_table_relation()
+
+    def get_table_from_query(self, query: str):
+        self.cursor.execute(query)
+        return self.get_table_relation()
+
+    def get_schema_table(self, sql_request: str, cols: list):
+        buffer = "select "
+        for col in cols:
+            buffer += "typeof(" + col + "), "
+        buffer = buffer[:-2] + " from (" + sql_request + ") LIMIT 1"
+        self.cursor.execute(buffer)
+        datas = list(self.cursor.fetchall()[0])
+        schema = []
+        for i in range(len(datas)):
+            schema.append((cols[i], datas[i]))
+        return schema
 
     def get_table_relation(self):
         data = self.cursor.fetchall()
@@ -233,3 +249,13 @@ class SPJRUD:
         if table_name in self.expressions:
             return True
         return False
+
+    def is_sql_query(self, query: str):
+        try:
+            self.cursor.execute(query)
+            data = self.cursor.fetchall()
+            if len(data) == 0:
+                return False
+            return True
+        except:
+            return False

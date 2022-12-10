@@ -48,7 +48,7 @@ def print_list_expression(expressions: dict):
         clear()
         title("List of expressions")
         for key in expressions.keys():
-            print(" - " + key + " = " + expressions[key][0])
+            print(" - " + key + " = " + expressions[key][0] + ", sql = (" + expressions[key][1] + ")")
         wait()
     else:
         alert_box("There are no saved expressions !")
@@ -102,7 +102,7 @@ def alert_box(txt):
         clear()
         title("Errors")
         for error in txt:
-            print(" - " + error)
+            print(" " + error)
         wait()
 
 
