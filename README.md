@@ -36,18 +36,24 @@
         <li>First, you must enter the name you want to give to the relationship</li>
         <li>Second, you have to enter the SPJRUD expression respecting the syntax described in point 6</li>
       </ul>
-    <br><b><u><li>Save a SPJRUD expression to database</li></u></b>
+    <br><b><u><li>Save a relation into the database</li></u></b>
       <ul>
-        <li>TODO</li>
+        <li>Just put the name of the relation you want to save</li>
       </ul>
     <br><b><u><li>Syntax for a SPJRUD expression</li></u></b>
       <ul type="square">
       <li>For SELECT: &nbsp;&nbsp; sel(<i>column</i>, <i>operator</i>, '<i>constant</i>', <i>table</i>)
+      <br> Sample: sel(AlbumId, <, '5', albums) / sel(AlbumId, <, ArtistId, albums)
       <li>For PROJECT: &nbsp;&nbsp; proj([<i>column</i>, <i>column</i>, <i>...</i> ], <i>table</i>)
+      <br> Sample: proj([AlbumId, Title], albums)
       <li>For JOIN: &nbsp;&nbsp; join(<i>table</i>, <i>table</i>)
+      <br> Sample: join(albums, albums_joi)
       <li>For RENAME: &nbsp;&nbsp; ren(<i>column</i>, '<i>new_name</i>', <i>table</i>)
+      <br> Sample: re(AlbumId, 'id', albums)
       <li>For UNION: &nbsp;&nbsp; union(<i>table</i>, <i>table</i>)
+      <br> Sample: union(albums, albums_uni)
       <li>For DIFFERENCE: &nbsp;&nbsp; diff(<i>table</i>, <i>table</i>)
+      <br> Sample: diff(albums, albums_min)
       </ul>
       -------
       <ul class="list">
