@@ -73,8 +73,8 @@
   - [x] Project
   - [ ] Join
   - [x] Rename
-  - [ ] Union
-  - [ ] Difference
+  - [x] Union
+  - [x] Difference
 
 
 
