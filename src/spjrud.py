@@ -339,7 +339,6 @@ class SPJRUD:
     def is_sql_query(self, query: str):
         try:
             self.cursor.execute(query)
-            self.cursor.execute("commit")
             data = self.cursor.fetchall()
             if len(data) == 0:
                 return False
