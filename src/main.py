@@ -17,6 +17,11 @@ def create_spjrud_expression(db):
     ui.alert_box(db.create_expression(name, expression))
 
 
+def save_relation_into_db(db):
+    rel_name = ui.menu_save_relation()
+    ui.alert_box(db.save_relation_into_db(rel_name))
+
+
 def execute(db: SPJRUD):
     is_running = True
     while is_running:
@@ -29,6 +34,8 @@ def execute(db: SPJRUD):
             create_spjrud_expression(db)
         elif choice == '4':
             ui.print_list_expression(db.get_expressions())
+        elif choice == '5':
+            save_relation_into_db(db)
         elif choice == '0':
             is_running = False
         elif db.is_sql_query(choice):

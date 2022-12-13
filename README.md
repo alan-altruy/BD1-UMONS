@@ -67,7 +67,7 @@
 - [x] Create a SPJRUD expression
 - [x] List of SPJRUD expression
 - [x] Execute a SPJRUD expression
-- [ ] Add a table into database from a SPJRUD expression (relation)
+- [x] Add a table into database from a SPJRUD expression (relation)
 <br>Validation of SPJRUD Expression
   - [x] Select
   - [x] Project

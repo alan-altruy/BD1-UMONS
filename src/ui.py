@@ -17,6 +17,7 @@ def main_menu():
           "2. Show a table/relation\n"
           "3. Create a SPJRUD expression\n"
           "4. List of SPJRUD expression\n"
+          "5. Save a relation into the database\n"
           "0. Back to Home\n")
     return input("Choice: ")
 
@@ -33,6 +34,13 @@ def menu_create_expression():
     name = input("Name of the relation: ")
     expression = input("The expression: ")
     return name, expression
+
+
+def menu_save_relation():
+    clear()
+    title("Save a relation into the database")
+    rel_name = input("Name of the relation: ")
+    return rel_name
 
 
 def print_list_table(tables: list, relation: list):

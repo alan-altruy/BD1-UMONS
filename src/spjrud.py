@@ -253,6 +253,25 @@ class SPJRUD:
 
         return rel1, sql_request1, sch1, rel2, sql_request2, sch2
 
+    def save_relation_into_db(self, rel_name: str):
+        if rel_name not in self.expressions.keys():
+            return "No relation has this name: " + rel_name
+        table = self.get_relation(rel_name)
+        cols = table[0]
+        table = table[1:]
+        schema = self.get_schema_table(self.expressions[rel_name][1], cols)
+        self.expressions.pop(rel_name)
+        sql_request = "create table " + rel_name + " ("
+        for key in schema.keys():
+            sql_request += ("'" + key + "' " + schema[key] + ", ")
+        sql_request = sql_request[:-2] + ")"
+        self.cursor.execute(sql_request)
+
+        for line in table:
+            self.cursor.execute("INSERT INTO " + rel_name + " (" + str(cols)[1:-1] + ")VALUES(" + str(line)[1:-1] + ")")
+        self.cursor.execute("commit")
+        return "Relation successfully saved in database !"
+
     def get_column(self, sql_request: str):
         self.cursor.execute(sql_request)
         col = []
