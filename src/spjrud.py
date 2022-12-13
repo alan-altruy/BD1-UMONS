@@ -24,7 +24,8 @@ class SPJRUD:
             cols += col + ", "
         return "select " + cols[:-2] + " from (" + table + ")"
 
-    def join(self, first_table, second_table):
+    @staticmethod
+    def join(first_table, second_table):
         pass
 
     @staticmethod
@@ -37,20 +38,22 @@ class SPJRUD:
             cols += ", "
         return "select " + cols[:-2] + " from (" + table + ")"
 
-    def union(self, first_table, second_table):
-        pass
+    @staticmethod
+    def union(first_table, second_table):
+        return first_table + " UNION " + second_table
 
-    def diff(self, first_table, second_table):
-        pass
+    @staticmethod
+    def diff(first_table: str, second_table: str):
+        return first_table + " EXCEPT " + second_table
 
     def create_expression(self, name: str, expression: str):
         if name not in self.expressions.keys() and name not in self.get_tables():
-            error, sql_request = self.check_expression(expression)
+            sql_request = self.check_expression(expression)
 
-            if error is None:
+            if type(sql_request) == str:  # is an error
                 self.expressions[name] = [expression, sql_request]
                 return "Relation successfully added !"
-            return error
+            return sql_request
         else:
             return "An table/relation already has this name !"
 
@@ -61,7 +64,7 @@ class SPJRUD:
         args = ""
         pointer = "operator"
         if expression.count('(') != expression.count(')'):
-            return error_syntax(expression, "parentheses"), None
+            return error_syntax(expression, "parentheses")
 
         for character in expression:
             if pointer == "operator":
@@ -72,18 +75,18 @@ class SPJRUD:
             else:
                 args += character
         if operator not in operators.keys():
-            return error_operator(operator, expression, list(operators.keys())), None
+            return error_operator(expression, operator, list(operators.keys()))
         return operators[operator](args[:-1])
 
     def check_relation(self, relation: str, exp: str):
         if relation.find("(") > 0:
             return self.check_expression(relation)
         elif self.table_exist(relation):
-            return None, "select * from " + relation
+            return "select * from " + relation
         elif self.relation_exist(relation):
-            return None, self.expressions[relation][1]
+            return self.expressions[relation][1]
         else:
-            return error_rel_not_exist(relation, exp), None
+            return error_rel_not_exist(exp, relation)
 
     def check_select(self, arg: str):
         expression = "sel(" + arg + ")"
@@ -96,33 +99,43 @@ class SPJRUD:
             else:
                 args[pointer] = args[pointer] + char
 
+        if "" in args:
+            return error_arg_miss(expression)
+
         [first_arg, operator, second_arg, relation] = clean_lst_str(args)
 
-        if operator not in operators:
-            return error_operator(operator, expression, operators), None
-
-        (error, sql_request) = self.check_relation(relation, expression)
-        if error is not None:
-            return error, None
+        sql_request = self.check_relation(relation, expression)
+        if type(sql_request) == list:
+            return sql_request
 
         cols = self.get_column(sql_request)
+        schema = self.get_schema_table(sql_request, cols)
 
         if is_constant(first_arg):
-            return error_column(relation, cols), None
+            return error_column_constant(expression, first_arg)
 
         if first_arg not in cols:
-            return error_column(relation, cols, col=first_arg), None
+            return error_column(expression, relation, first_arg, cols)
+
+        if operator not in operators:
+            return error_operator(expression, operator, operators)
 
         if not is_constant(second_arg) and second_arg not in cols:
-            return error_column(relation, cols, col=second_arg), None
+            return error_column(expression, relation, second_arg, cols)
 
-        return None, self.select(first_arg, operator, second_arg, sql_request)
+        if not is_constant(second_arg) and schema[first_arg] != schema[second_arg]:
+            return error_type_column(expression, first_arg, second_arg, schema)
+
+        if is_constant(second_arg) and not check_same_type(clean_cons(second_arg), schema[first_arg]):
+            return error_type(expression, second_arg, first_arg, schema[first_arg])
+
+        return self.select(first_arg, operator, second_arg, sql_request)
 
     def check_project(self, arg: str):
         expression = "proj(" + arg + ")"
         arg = clean_str(arg)
         if not arg.startswith("["):
-            return error_syntax(expression, "brackets"), None
+            return error_syntax(expression, "brackets")
         arg = arg[1:]
         pointer = "cols"
         cols_to_project = []
@@ -137,23 +150,29 @@ class SPJRUD:
                 buffer = ""
             elif not (buffer == "" and char == ","):
                 buffer += char
+
         if pointer == "cols":
-            return error_syntax(expression, "brackets"), None
+            return error_syntax(expression, "brackets")
         cols_to_project = clean_lst_str(cols_to_project)
         relation = clean_str(buffer)
-        (error, sql_request) = self.check_relation(relation, expression)
-        if error is not None:
-            return error, None
+        sql_request = self.check_relation(relation, expression)
+        if type(sql_request) == list:
+            return sql_request
 
         cols = self.get_column(sql_request)
         for col in cols_to_project:
             if col not in cols:
-                return error_column(relation, cols, col=col), None
+                return error_column(expression, relation, col, cols)
 
-        return None, self.proj(cols_to_project, sql_request)
+        return self.proj(cols_to_project, sql_request)
 
-    def check_join(self, args: str):
-        pass
+    def check_join(self, arg: str):
+        expression = "join(" + arg + ")"
+        value = self.check_args_relations(arg, expression)
+        if type(value) == list:
+            return value
+        (rel1, sql_request1, sch1, rel2, sql_request2, sch2) = value
+        # TODO
 
     def check_rename(self, arg: str):
         expression = "ren(" + arg + ")"
@@ -168,22 +187,71 @@ class SPJRUD:
                 buffer += char
         relation = clean_str(buffer)
         args = clean_lst_str(args)
-        (error, sql_request) = self.check_relation(relation, expression)
-        if error is not None:
-            return error, None
+        sql_request = self.check_relation(relation, expression)
+        if type(sql_request) == list:
+            return sql_request
 
         cols = self.get_column(sql_request)
         if args[0] not in cols:
-            return error_column(relation, cols, col=args[0]), None
+            return error_column(expression, relation, args[0], cols)
         if not is_constant(args[1]):
-            return error_not_constant(expression, args[1]), None
-        return None, self.rename(args[0], args[1], sql_request, cols)
+            return error_not_constant(expression, args[1])
+        if not check_same_type(args[1], 'text'):
+            return error_type(expression, args[1], "[New Name]", 'text')
+        return self.rename(args[0], args[1], sql_request, cols)
 
-    def check_union(self, args: str):
-        pass
+    def check_union(self, arg: str):
+        expression = "union(" + arg + ")"
+        value = self.check_args_relations(arg, expression)
+        if type(value) == list:
+            return value
+        (rel1, sql_request1, sch1, rel2, sql_request2, sch2) = value
+        if sch1 != sch2:
+            return error_schema(expression, rel1, sch1, rel2, sch2)
+        return self.union(sql_request1, sql_request2)
 
-    def check_difference(self, args: str):
-        pass
+    def check_difference(self, arg: str):
+        expression = "diff(" + arg + ")"
+        value = self.check_args_relations(arg, expression)
+        if type(value) == list:
+            return value
+        (rel1, sql_request1, sch1, rel2, sql_request2, sch2) = value
+        if sch1 != sch2:
+            return error_schema(expression, rel1, sch1, rel2, sch2)
+        return self.diff(sql_request1, sql_request2)
+
+    def check_args_relations(self, arg: str, exp: str):
+        arg = clean_str(arg)
+        nb_opened_par = 0
+        nb_closed_par = 0
+        rel1 = ""
+
+        for char in arg:
+            if char == '(':
+                nb_opened_par += 1
+            elif char == ')':
+                nb_closed_par += 1
+            if char == ',' and nb_opened_par == nb_closed_par:
+                break
+            else:
+                rel1 += char
+        rel2 = clean_str(arg[len(rel1) + 1:])
+        rel1 = clean_str(rel1)
+
+        sql_request1 = self.check_relation(rel1, exp)
+        if type(sql_request1) == list:
+            return sql_request1
+
+        sql_request2 = self.check_relation(rel2, exp)
+        if type(sql_request2) == list:
+            return sql_request2
+        tab1 = self.get_table_from_query(sql_request1)
+        sch1 = self.get_schema_table(sql_request1, tab1[0])
+
+        tab2 = self.get_table_from_query(sql_request2)
+        sch2 = self.get_schema_table(sql_request2, tab2[0])
+
+        return rel1, sql_request1, sch1, rel2, sql_request2, sch2
 
     def get_column(self, sql_request: str):
         self.cursor.execute(sql_request)
@@ -220,9 +288,9 @@ class SPJRUD:
         buffer = buffer[:-2] + " from (" + sql_request + ") LIMIT 1"
         self.cursor.execute(buffer)
         datas = list(self.cursor.fetchall()[0])
-        schema = []
+        schema = {}
         for i in range(len(datas)):
-            schema.append((cols[i], datas[i]))
+            schema[cols[i]] = datas[i]
         return schema
 
     def get_table_relation(self):
@@ -232,8 +300,7 @@ class SPJRUD:
         for elt in self.cursor.description:
             col.append(elt[0])
         table.append(col)
-        for elt in data:
-            table.append(elt)
+        table.extend(data)
         return table
 
     def get_relation(self, table_name):
