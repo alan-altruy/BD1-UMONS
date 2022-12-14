@@ -455,7 +455,7 @@ class SPJRUD:
         It returns a list of all the tables in the database
         :return: A list of all the tables in the database.
         """
-        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' and name not like '%sqlite_%'")
         tables = []
         for table in self.cursor.fetchall():
             tables.append(table[0])

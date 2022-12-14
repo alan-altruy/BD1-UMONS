@@ -98,37 +98,61 @@ def print_list_expression(relations: dict):
 
 
 def print_table(table_name: str, table: list):
-    """
-    It prints a table
-
-    :param table_name: The name of the table to be printed
-    :type table_name: str
-    :param table: the table to print
-    :type table: list
-    """
     clear()
+    display_size = os.get_terminal_size().columns
     title("Table " + table_name + ":")
+
+    col_size = []
+    to_verif_index = []
+    tab_size = 0
+    for i in range(len(table[0])):
+        col_size.append(0)
+        for j in range(len(table)):
+            col_size[i] = max(len(str(table[j][i])), col_size[i])
+        if (col_size[i] + 6) > (display_size/(len(table[0]))):
+            to_verif_index.append(i)
+        else:
+            tab_size += col_size[i]
+    display_size -= tab_size + 4 * len(col_size)
+    nb = len(to_verif_index)
+    for index in to_verif_index:
+        col_size[index] = min(col_size[index], int(display_size/nb))
+        tab_size += col_size[index]
+
     buffer = ""
-    line = "|" + (len(table[0]) * 23 - 1) * "-" + "|"
-    print(line)
-    for elt in table[0]:
-        if len(str(elt)) > 18:
-            elt = elt[0:18] + ".."
-        buffer += "| {:^20} ".format(elt)
-    print(buffer + "|")
+    line = "├"
+    first_line = "┌"
+    end_line = "└"
+
+    for i in range(len(table[0])):
+        elt = table[0][i]
+        if len(str(elt)) > col_size[i]:
+            elt = elt[0:(col_size[i]-2)] + ".."
+        buffer += ("│ {:^" + str(col_size[i]) + "} ").format(elt)
+        line += ("─{:^" + str(col_size[i]) + "}─┼").format(col_size[i]*'─')
+        first_line += ("─{:^" + str(col_size[i]) + "}─┬").format(col_size[i]*'─')
+        end_line += ("─{:^" + str(col_size[i]) + "}─┴").format(col_size[i]*'─')
+    buffer += "│"
+    line = line[:-1] + "┤"
+    first_line = first_line[:-1] + "┐"
+    end_line = end_line[:-1] + "┘"
+
+    print(first_line)
+    print(buffer)
     print(line)
     buffer = ""
 
     table = table[1:]
-    for row in table:
-        for elt in row:
-            if len(str(elt)) > 18:
-                elt = elt[0:18] + ".."
-            buffer += "| {:^20} ".format(str(elt))
-        buffer += "|\n"
+    for i in range(len(table)):
+        for j in range(len(table[i])):
+            elt = str(table[i][j])
+            if len(elt) > col_size[j]:
+                elt = elt[:(col_size[j]-2)] + ".."
+            buffer += ("│ {:" + str(col_size[j]) + "} ").format(str(elt))
+        buffer += "│\n"
     if len(buffer) > 0:
         print(buffer[:-1])
-    print(line)
+    print(end_line)
     wait()
 
 
@@ -150,7 +174,7 @@ def title(txt: str):
     :param txt: The title to be printed
     :type txt: str
     """
-    print(txt + "\n" + "-" * len(txt) + "\n")
+    print(txt + "\n" + "‾" * len(txt))
 
 
 def alert_box(txt):
@@ -161,9 +185,9 @@ def alert_box(txt):
     """
     if type(txt) == str:
         clear()
-        print("|" + "-" * (len(txt)) + "|")
-        print("|" + txt + "|")
-        print("|" + "-" * (len(txt)) + "|")
+        print("┌" + "─" * (len(txt)) + "┐")
+        print("│" + txt + "│")
+        print("└" + "─" * (len(txt)) + "┘")
         sleep(1.5)
     elif len(txt) > 0:
         clear()
