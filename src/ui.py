@@ -41,13 +41,13 @@ def menu_show_table():
     return input("Name of the table: ")
 
 
-def menu_create_expression():
+def menu_create_relation():
     """
     It asks the user for a name and an expression, and returns them
     :return: The name and expression of the relation.
     """
     clear()
-    title("Create SPJRUD expression")
+    title("Create SPJRUD relation")
     name = input("Name of the relation: ")
     expression = input("The expression: ")
     return name, expression
@@ -80,7 +80,7 @@ def print_list_table(tables: list, relation: list):
     wait()
 
 
-def print_list_expression(relations: dict):
+def print_list_relation(relations: dict):
     """
     It prints the list of relations
 
@@ -98,6 +98,14 @@ def print_list_expression(relations: dict):
 
 
 def print_table(table_name: str, table: list):
+    """
+    It prints a table
+
+    :param table_name: The name of the table to display
+    :type table_name: str
+    :param table: the table to display
+    :type table: list
+    """
     clear()
     display_size = os.get_terminal_size().columns
     title("Table " + table_name + ":")
@@ -120,22 +128,22 @@ def print_table(table_name: str, table: list):
         tab_size += col_size[index]
 
     buffer = ""
-    line = "├"
-    first_line = "┌"
-    end_line = "└"
+    line = "╞"
+    first_line = "╭"
+    end_line = "╰"
 
     for i in range(len(table[0])):
         elt = table[0][i]
         if len(str(elt)) > col_size[i]:
-            elt = elt[0:(col_size[i]-2)] + ".."
+            elt = elt[0:(col_size[i]-1)] + "…"
         buffer += ("│ {:^" + str(col_size[i]) + "} ").format(elt)
-        line += ("─{:^" + str(col_size[i]) + "}─┼").format(col_size[i]*'─')
+        line += ("═{:^" + str(col_size[i]) + "}═╪").format(col_size[i]*'═')
         first_line += ("─{:^" + str(col_size[i]) + "}─┬").format(col_size[i]*'─')
         end_line += ("─{:^" + str(col_size[i]) + "}─┴").format(col_size[i]*'─')
     buffer += "│"
-    line = line[:-1] + "┤"
-    first_line = first_line[:-1] + "┐"
-    end_line = end_line[:-1] + "┘"
+    line = line[:-1] + "╡"
+    first_line = first_line[:-1] + "╮"
+    end_line = end_line[:-1] + "╯"
 
     print(first_line)
     print(buffer)
@@ -147,7 +155,7 @@ def print_table(table_name: str, table: list):
         for j in range(len(table[i])):
             elt = str(table[i][j])
             if len(elt) > col_size[j]:
-                elt = elt[:(col_size[j]-2)] + ".."
+                elt = elt[:(col_size[j]-1)] + "…"
             buffer += ("│ {:" + str(col_size[j]) + "} ").format(str(elt))
         buffer += "│\n"
     if len(buffer) > 0:
