@@ -487,8 +487,8 @@ class SPJRUD:
 
     def get_relation(self, rel_name):
         """
-        It takes a relation name as input and returns a table object that is the result of executing the query that defines
-        the relation
+        It takes a relation name as input and returns a table object that is the result of executing the query that
+        defines the relation
 
         :param rel_name: The name of the relation you want to get
         :return: The table that is being returned is the table that is being queried.
