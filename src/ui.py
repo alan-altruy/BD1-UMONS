@@ -193,9 +193,9 @@ def alert_box(txt):
     """
     if type(txt) == str:
         clear()
-        print("┌" + "─" * (len(txt)) + "┐")
+        print("╭" + "─" * (len(txt)) + "╮")
         print("│" + txt + "│")
-        print("└" + "─" * (len(txt)) + "┘")
+        print("╰" + "─" * (len(txt)) + "╯")
         sleep(1.5)
     elif len(txt) > 0:
         clear()
