@@ -66,6 +66,8 @@
 
 ### Features
 
+- [ ] Very Full debug
+- [x] Comments in code
 - [x] List of Tables
 - [x] List of Relations
 - [x] Show a table
@@ -77,7 +79,7 @@
 <br>Validation of SPJRUD Expression
   - [x] Select
   - [x] Project
-  - [ ] Join
+  - [X] Join
   - [x] Rename
   - [x] Union
   - [x] Difference
