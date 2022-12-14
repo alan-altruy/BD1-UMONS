@@ -74,7 +74,7 @@ if __name__ == "__main__":
         if file_name == 'q':
             run = False
         elif file_name == '':
-            spjrud.config("../resources/bd.db")
+            spjrud.config(str(__file__)[:-11]+"resources/bd.db")
             execute(spjrud)
         else:
             try:
