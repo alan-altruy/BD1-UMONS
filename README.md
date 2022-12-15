@@ -17,7 +17,7 @@
       <ul>
       <li>If you want to leave the program, enter 'q'</li>
       <li>Enter the exact path of the database you want to open</li>
-      <li>If you want to use an example of database, just press 'enter'</li>
+      <li>If you want to use an example of database, just enter the name of the default database</li>
       </ul>
     <br><b><u><li>Main Menu</li></u></b>
       <ul>

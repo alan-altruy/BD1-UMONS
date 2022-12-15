@@ -71,12 +71,13 @@ def execute(db: SPJRUD):
 if __name__ == "__main__":
     run = True
     spjrud: SPJRUD = SPJRUD()
+    files_names = ["default", "cinema", "dallas-police"]
     while run:
-        file_name = ui.first_menu()
+        file_name = ui.first_menu(files_names)
         if file_name == 'q':
             run = False
-        elif file_name == '':
-            spjrud.config(str(__file__)[:-11]+"resources/bd.db")
+        elif file_name in files_names:
+            spjrud.config(str(__file__)[:-11]+"resources/" + file_name + ".db")
             execute(spjrud)
         else:
             try:

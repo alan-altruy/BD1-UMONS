@@ -2,7 +2,7 @@ import os
 from time import sleep
 
 
-def first_menu():
+def first_menu(default: list):
     """
     It asks the user for the path of the database, and if the user
     doesn't enter anything, it uses the default database
@@ -11,7 +11,7 @@ def first_menu():
     clear()
     title("SPJRUD Translator")
     print("- Enter q for exit\n"
-          "- Do not enter anything to use the default database\n")
+          "- For using default database, enter a name in this list: " + str(default)[1:-1] + "\n")
     return input("Path of the database: ")
 
 
