@@ -202,7 +202,7 @@ def error_arg_miss(exp: str):
     :type exp: str
     :return: A string that contains the error message.
     """
-    return _default_error(exp, ["at least one argument is missing", ])
+    return _default_error(exp, ["at least one argument is missing", "or one of the comma/apostrophe is missing"])
 
 
 def error_schema(exp: str, rel1: str, sch1: dict, rel2: str, sch2: dict):

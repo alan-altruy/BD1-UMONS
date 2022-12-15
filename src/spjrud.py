@@ -53,7 +53,7 @@ class SPJRUD:
         cols = ""
         for col in columns:
             cols += col + ", "
-        return "select " + cols[:-2] + " from (" + table + ")"
+        return "select distinct (" + cols[:-2] + ") from (" + table + ")"
 
     def join(self, first_table: str, second_table: str, cols: list):
         """
@@ -210,9 +210,12 @@ class SPJRUD:
         args = ["", "", "", ""]
         pointer = 0
         for char in arg:
-            if (char == ",") and (pointer < 3):
+            if (char == ",") and (pointer < 2 or (pointer == 2 and (not clean_str(args[pointer]).startswith("'") or
+                                                                    (clean_str(args[pointer]).endswith("'"))))):
                 pointer += 1
             else:
+                if pointer == 2 and len(clean_str(args[2])) > 1 and args[2][-1] == "'":
+                    args[2] = args[2] + "'"
                 args[pointer] = args[pointer] + char
 
         if "" in args:
