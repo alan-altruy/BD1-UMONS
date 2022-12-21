@@ -41,7 +41,7 @@ def menu_show_table():
     return input("Name of the table: ")
 
 
-def menu_create_relation():
+def menu_create_relation(already_exists: list):
     """
     It asks the user for a name and an expression, and returns them
     :return: The name and expression of the relation.
@@ -49,6 +49,10 @@ def menu_create_relation():
     clear()
     title("Create SPJRUD relation")
     name = input("Name of the relation: ")
+    wait()
+    if name in already_exists:
+        alert_box("An table/relation already has this name !")
+        return menu_create_relation(already_exists)
     expression = input("The expression: ")
     return name, expression
 
@@ -74,10 +78,13 @@ def print_list_table(tables: list, relation: list):
     :type relation: list
     """
     clear()
-    title("List of tables/relations")
-    print_lst(tables)
-    print_lst(relation)
-    wait()
+    if len(tables) > 0 or len(tables) == 0:
+        title("List of tables/relations")
+        print_lst(tables)
+        print_lst(relation)
+        wait()
+    else:
+        alert_box("There is no table and relation !")
 
 
 def print_list_relation(relations: dict):

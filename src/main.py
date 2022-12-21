@@ -25,7 +25,10 @@ def create_spjrud_expression(db: SPJRUD):
     :param db: SPJRUD main object
     :type db: SPJRUD
     """
-    (name, expression) = ui.menu_create_relation()
+    already_exists = db.get_tables_names()
+    already_exists.extend(db.get_relations_names())
+
+    (name, expression) = ui.menu_create_relation(already_exists)
     ui.alert_box(db.create_expression(name, expression))
 
 
@@ -40,7 +43,7 @@ def save_relation_into_db(db: SPJRUD):
     ui.alert_box(db.save_relation_into_db(rel_name))
 
 
-def execute(db: SPJRUD):
+def launch_main_menu(db: SPJRUD):
     """
     It's a loop that asks the user for a command, and then executes that command
 
@@ -63,7 +66,7 @@ def execute(db: SPJRUD):
         elif choice == '0':
             is_running = False
         elif choice == 'q':
-            quit(0)
+            return False
         elif db.is_sql_query(choice):
             ui.print_table("[Your query]", db.get_table_from_query(choice))
 
@@ -78,11 +81,11 @@ if __name__ == "__main__":
             run = False
         elif file_name in files_names:
             spjrud.config(str(__file__)[:-11]+"resources/" + file_name + ".db")
-            execute(spjrud)
+            run = launch_main_menu(spjrud)
         else:
             try:
                 open(file_name)
                 spjrud.config(file_name)
-                execute(spjrud)
+                launch_main_menu(spjrud)
             except:
                 ui.alert_box("! Path or file does not exist !")
