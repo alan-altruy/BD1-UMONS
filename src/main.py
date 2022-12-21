@@ -69,6 +69,7 @@ def launch_main_menu(db: SPJRUD):
             return False
         elif db.is_sql_query(choice):
             ui.print_table("[Your query]", db.get_table_from_query(choice))
+    return True
 
 
 if __name__ == "__main__":
