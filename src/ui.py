@@ -49,7 +49,6 @@ def menu_create_relation(already_exists: list):
     clear()
     title("Create SPJRUD relation")
     name = input("Name of the relation: ")
-    wait()
     if name in already_exists:
         alert_box("An table/relation already has this name !")
         return menu_create_relation(already_exists)
