@@ -1,5 +1,6 @@
 from spjrud import SPJRUD
-import ui
+import ui as basic_ui
+import gui
 
 
 def show_table(db: SPJRUD):
@@ -72,16 +73,24 @@ def launch_main_menu(db: SPJRUD):
     return True
 
 
+global ui
+
 if __name__ == "__main__":
     run = True
-    spjrud: SPJRUD = SPJRUD()
+    selected_ui = input("Select the UI (1. Console, 2. GUI): ")
     files_names = ["default", "cinema", "dallas-police"]
+    spjrud: SPJRUD = SPJRUD()
+    if selected_ui == "2":
+        gui.GUI(spjrud, files_names)
+        run = False
+    else:
+        ui = basic_ui
     while run:
         file_name = ui.first_menu(files_names)
         if file_name == 'q':
             run = False
         elif file_name in files_names:
-            spjrud.config(str(__file__)[:-11]+"resources/" + file_name + ".db")
+            spjrud.config(str(__file__)[:-11] + "resources/" + file_name + ".db")
             run = launch_main_menu(spjrud)
         else:
             try:
